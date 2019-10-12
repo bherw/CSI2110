@@ -4,6 +4,8 @@
  * @author Lachlan Plant
  */
 public class HeapPriorityQueue<K extends Comparable, V> implements PriorityQueue<K, V> {
+    private static final int MIN_HEAP_OPERATION = 1;
+    private static final int MAX_HEAP_OPERATION = -1;
 
     private Entry[] minHeap; //The Heap itself in array form
     private int tail;    //Index of last element in the heap
@@ -70,7 +72,7 @@ public class HeapPriorityQueue<K extends Comparable, V> implements PriorityQueue
         Entry<K, V> e = new Entry<>(key, value);
         minHeap[++tail] = e;
         e.setIndex(tail);
-        upHeap(tail);
+        upHeap(tail, MIN_HEAP_OPERATION);
         return e;
     } /* insert */
 
@@ -109,7 +111,7 @@ public class HeapPriorityQueue<K extends Comparable, V> implements PriorityQueue
         minHeap[0] = minHeap[tail];
         minHeap[tail--] = null;
 
-        downHeap(0);
+        downHeap(0, MIN_HEAP_OPERATION);
 
         return ret;
     } /* removeMin */
@@ -125,14 +127,14 @@ public class HeapPriorityQueue<K extends Comparable, V> implements PriorityQueue
      * Algorithm to place element after insertion at the tail.
      * O(log(n))
      */
-    private void upHeap(int location) {
+    private void upHeap(int location, int operation) {
         if (location == 0) return;
 
         int parent = parent(location);
 
-        if (minHeap[parent].key.compareTo(minHeap[location].key) > 0) {
+        if (minHeap[parent].key.compareTo(minHeap[location].key) * operation > 0) {
             swap(location, parent);
-            upHeap(parent);
+            upHeap(parent, operation);
         }
     } /* upHeap */
 
@@ -141,7 +143,7 @@ public class HeapPriorityQueue<K extends Comparable, V> implements PriorityQueue
      * Algorithm to place element after removal of root and tail element placed at root.
      * O(log(n))
      */
-    private void downHeap(int location) {
+    private void downHeap(int location, int operation) {
         int left = (location * 2) + 1;
         int right = (location * 2) + 2;
 
@@ -150,17 +152,17 @@ public class HeapPriorityQueue<K extends Comparable, V> implements PriorityQueue
 
         //left in right out;
         if (left == tail) {
-            if (minHeap[location].key.compareTo(minHeap[left].key) > 0)
+            if (minHeap[location].key.compareTo(minHeap[left].key) * operation > 0)
                 swap(location, left);
             return;
         }
 
-        int toSwap = (minHeap[left].key.compareTo(minHeap[right].key) < 0) ?
+        int toSwap = (minHeap[left].key.compareTo(minHeap[right].key) * operation < 0) ?
                 left : right;
 
-        if (minHeap[location].key.compareTo(minHeap[toSwap].key) > 0) {
+        if (minHeap[location].key.compareTo(minHeap[toSwap].key) *operation > 0) {
             swap(location, toSwap);
-            downHeap(toSwap);
+            downHeap(toSwap, operation);
         }
     } /* downHeap */
 
