@@ -7,8 +7,10 @@ public class HeapPriorityQueue<K extends Comparable, V> implements PriorityQueue
     private static final int MIN_HEAP_OPERATION = 1;
     private static final int MAX_HEAP_OPERATION = -1;
 
-    private Entry[] minHeap; //The Heap itself in array form
-    private int tail;    //Index of last element in the heap
+    private Entry[] minHeap;
+    private Entry[] maxHeap;
+    private Entry<K, V> buffer;
+    private int tail = -1;
 
     /**
      * Default constructor
@@ -22,8 +24,8 @@ public class HeapPriorityQueue<K extends Comparable, V> implements PriorityQueue
      * HeapPriorityQueue constructor with max storage of size elements
      */
     public HeapPriorityQueue(int size) {
-        minHeap = new Entry[size];
-        tail = -1;
+        minHeap = new Entry[size / 2];
+        maxHeap = new Entry[size / 2];
     }
 
 
@@ -40,7 +42,7 @@ public class HeapPriorityQueue<K extends Comparable, V> implements PriorityQueue
      * @return number of items
      */
     public int size() {
-        return tail + 1;
+        return 2 * (tail + 1) + (buffer == null ? 0 : 1);
     } /* size */
 
 
@@ -51,7 +53,7 @@ public class HeapPriorityQueue<K extends Comparable, V> implements PriorityQueue
      * @return true if the priority queue is empty, false otherwise
      */
     public boolean isEmpty() {
-        return tail < 0;
+        return tail < 0 && buffer == null;
     } /* isEmpty */
 
 
@@ -69,11 +71,42 @@ public class HeapPriorityQueue<K extends Comparable, V> implements PriorityQueue
             throw new IllegalArgumentException("Heap Overflow");
 
         Entry<K, V> e = new Entry<>(key, value);
-        minHeap[++tail] = e;
-        e.setIndex(tail);
-        upHeap(tail, MIN_HEAP_OPERATION);
+        if (buffer == null) {
+            buffer = e;
+        }
+        else {
+            e.associate = buffer;
+            buffer.associate = e;
+            tail++;
+
+            if (e.key.compareTo(buffer.key) < 0) {
+                insert(minHeap, e, MIN_HEAP_OPERATION);
+                insert(maxHeap, buffer, MAX_HEAP_OPERATION);
+            }
+            else {
+                insert(minHeap, buffer, MIN_HEAP_OPERATION);
+                insert(maxHeap, e, MAX_HEAP_OPERATION);
+            }
+
+            buffer = null;
+        }
+
+
         return e;
     } /* insert */
+
+    /**
+     * Inserts an entry into the specified heap. O(log(n))
+     *
+     * @param heap      a heap
+     * @param e         an entry
+     * @param operation the operations this heap uses
+     */
+    private void insert(Entry[] heap, Entry<K, V> e, int operation) {
+        heap[tail] = e;
+        e.setIndex(tail);
+        upHeap(heap, tail, operation);
+    }
 
 
     /**
@@ -85,13 +118,19 @@ public class HeapPriorityQueue<K extends Comparable, V> implements PriorityQueue
     public Entry<K, V> min() {
         if (isEmpty())
             return null;
+        if (tail == -1)
+            return buffer;
+        if (buffer == null)
+            return minHeap[0];
+        if (buffer.key.compareTo(minHeap[0].key) < 0)
+            return buffer;
         return minHeap[0];
     } /* min */
 
 
     /**
      * Removes and returns an entry with minimal key.
-     * O(log(n))
+     * O(n)
      *
      * @return the removed entry (or null if empty)
      */
@@ -99,18 +138,70 @@ public class HeapPriorityQueue<K extends Comparable, V> implements PriorityQueue
         if (isEmpty())
             return null;
 
-        Entry<K, V> ret = minHeap[0];
-
-        if (tail == 0) {
-            tail = -1;
-            minHeap[0] = null;
+        // Buffer is min -> return buffer
+        if (buffer != null && (tail == -1 || buffer.key.compareTo(minHeap[0].key) < 0)) {
+            Entry<K, V> ret = buffer;
+            buffer = null;
             return ret;
         }
 
-        minHeap[0] = minHeap[tail];
-        minHeap[tail--] = null;
+        Entry<K, V> ret = minHeap[0];
+        Entry<K, V> associate = ret.associate;
 
-        downHeap(0, MIN_HEAP_OPERATION);
+        ret.associate = null;
+        associate.associate = null;
+
+        if (buffer == null) {
+            buffer = associate;
+
+            // Remove associated element from maxHeap.
+            // Worst case: we have to shift the entire maxHeap left by one
+            for (int i = associate.index; i < tail; i++) {
+                maxHeap[i] = maxHeap[i + 1];
+                maxHeap[i].index = i;
+            }
+            maxHeap[tail] = null;
+
+            if (tail != 0) {
+                minHeap[0] = minHeap[tail];
+            }
+            minHeap[tail] = null;
+            tail--;
+
+            // Fix maxHeap ordering by rebuilding it from the bottom up.
+            for (int i = tail - 1; i >= associate.index; i--) {
+                downHeap(maxHeap, i, MAX_HEAP_OPERATION);
+            }
+
+            if (tail != -1) {
+                downHeap(minHeap, 0, MIN_HEAP_OPERATION);
+            }
+        }
+        else {
+            // Form a new pair
+            buffer.associate = associate;
+            associate.associate = buffer;
+
+            // Buffer is smaller -> replace the removed entry in minHeap
+            if (buffer.key.compareTo(associate.key) < 0) {
+                minHeap[0] = buffer;
+                buffer.index = 0;
+                downHeap(minHeap, 0, MIN_HEAP_OPERATION);
+            }
+
+            // Buffer is larger -> associate moves to minHeap, buffer replaces associate in maxHeap
+            else {
+                maxHeap[associate.index] = buffer;
+                minHeap[0] = associate;
+                buffer.index = associate.index;
+                associate.index = 0;
+
+                downHeap(minHeap, 0, MIN_HEAP_OPERATION);
+                upDownHeap(maxHeap, buffer.index, MAX_HEAP_OPERATION);
+            }
+
+            buffer = null;
+        }
 
         return ret;
     } /* removeMin */
@@ -123,17 +214,35 @@ public class HeapPriorityQueue<K extends Comparable, V> implements PriorityQueue
      ****************************************************/
 
     /**
+     * Algorithm to fix element position after placement in an arbitrary position
+     * in the list. O(log(n))
+     */
+    private void upDownHeap(Entry[] heap, int location, int operation) {
+        if (location > 0) {
+            int parent = parent(location);
+
+            if (heap[parent].key.compareTo(heap[location].key) * operation > 0) {
+                swap(heap, location, parent);
+                upHeap(heap, parent, operation);
+                return;
+            }
+        }
+
+        downHeap(heap, location, operation);
+    }
+
+    /**
      * Algorithm to place element after insertion at the tail.
      * O(log(n))
      */
-    private void upHeap(int location, int operation) {
+    private void upHeap(Entry[] heap, int location, int operation) {
         if (location == 0) return;
 
         int parent = parent(location);
 
-        if (minHeap[parent].key.compareTo(minHeap[location].key) * operation > 0) {
-            swap(location, parent);
-            upHeap(parent, operation);
+        if (heap[parent].key.compareTo(heap[location].key) * operation > 0) {
+            swap(heap, location, parent);
+            upHeap(heap, parent, operation);
         }
     } /* upHeap */
 
@@ -142,7 +251,7 @@ public class HeapPriorityQueue<K extends Comparable, V> implements PriorityQueue
      * Algorithm to place element after removal of root and tail element placed at root.
      * O(log(n))
      */
-    private void downHeap(int location, int operation) {
+    private void downHeap(Entry[] heap, int location, int operation) {
         int left = (location * 2) + 1;
         int right = (location * 2) + 2;
 
@@ -151,17 +260,17 @@ public class HeapPriorityQueue<K extends Comparable, V> implements PriorityQueue
 
         //left in right out;
         if (left == tail) {
-            if (minHeap[location].key.compareTo(minHeap[left].key) * operation > 0)
-                swap(location, left);
+            if (heap[location].key.compareTo(heap[left].key) * operation > 0)
+                swap(heap, location, left);
             return;
         }
 
-        int toSwap = (minHeap[left].key.compareTo(minHeap[right].key) * operation < 0) ?
+        int toSwap = (heap[left].key.compareTo(heap[right].key) * operation < 0) ?
                 left : right;
 
-        if (minHeap[location].key.compareTo(minHeap[toSwap].key) *operation > 0) {
-            swap(location, toSwap);
-            downHeap(toSwap, operation);
+        if (heap[location].key.compareTo(heap[toSwap].key) * operation > 0) {
+            swap(heap, location, toSwap);
+            downHeap(heap, toSwap, operation);
         }
     } /* downHeap */
 
@@ -180,20 +289,30 @@ public class HeapPriorityQueue<K extends Comparable, V> implements PriorityQueue
      * Inplace swap of 2 elements, assumes locations are in array
      * O(1)
      */
-    private void swap(int location1, int location2) {
-        Entry<K, V> temp = minHeap[location1];
-        minHeap[location1] = minHeap[location2];
-        minHeap[location2] = temp;
+    private void swap(Entry[] heap, int location1, int location2) {
+        Entry<K, V> temp = heap[location1];
+        heap[location1] = heap[location2];
+        heap[location2] = temp;
 
-        minHeap[location1].index = location1;
-        minHeap[location2].index = location2;
+        heap[location1].index = location1;
+        heap[location2].index = location2;
     } /* swap */
 
     public void print() {
+        if (buffer != null) {
+            System.out.println("\nBUFFER:");
+            System.out.print(buffer);
+        }
 
         System.out.println("\nMIN HEAP");
         for (int i = 0; i <= tail; i++) {
             System.out.print(minHeap[i] + ", ");
+        }
+        System.out.println();
+
+        System.out.println("\nMAX HEAP");
+        for (int i = 0; i <= tail; i++) {
+            System.out.print(maxHeap[i] + ", ");
         }
         System.out.println();
     }
