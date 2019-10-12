@@ -5,7 +5,7 @@
  */
 public class HeapPriorityQueue<K extends Comparable, V> implements PriorityQueue<K, V> {
 
-    private Entry[] storage; //The Heap itself in array form
+    private Entry[] minHeap; //The Heap itself in array form
     private int tail;    //Index of last element in the heap
 
     /**
@@ -20,7 +20,7 @@ public class HeapPriorityQueue<K extends Comparable, V> implements PriorityQueue
      * HeapPriorityQueue constructor with max storage of size elements
      */
     public HeapPriorityQueue(int size) {
-        storage = new Entry[size];
+        minHeap = new Entry[size];
         tail = -1;
     }
 
@@ -64,11 +64,11 @@ public class HeapPriorityQueue<K extends Comparable, V> implements PriorityQueue
      * @throws IllegalArgumentException if the heap is full
      */
     public Entry<K, V> insert(K key, V value) throws IllegalArgumentException {
-        if (tail == storage.length - 1)
+        if (tail == minHeap.length - 1)
             throw new IllegalArgumentException("Heap Overflow");
 
         Entry<K, V> e = new Entry<>(key, value);
-        storage[++tail] = e;
+        minHeap[++tail] = e;
         e.setIndex(tail);
         upHeap(tail);
         return e;
@@ -84,7 +84,7 @@ public class HeapPriorityQueue<K extends Comparable, V> implements PriorityQueue
     public Entry<K, V> min() {
         if (isEmpty())
             return null;
-        return storage[0];
+        return minHeap[0];
     } /* min */
 
 
@@ -98,16 +98,16 @@ public class HeapPriorityQueue<K extends Comparable, V> implements PriorityQueue
         if (isEmpty())
             return null;
 
-        Entry<K, V> ret = storage[0];
+        Entry<K, V> ret = minHeap[0];
 
         if (tail == 0) {
             tail = -1;
-            storage[0] = null;
+            minHeap[0] = null;
             return ret;
         }
 
-        storage[0] = storage[tail];
-        storage[tail--] = null;
+        minHeap[0] = minHeap[tail];
+        minHeap[tail--] = null;
 
         downHeap(0);
 
@@ -130,7 +130,7 @@ public class HeapPriorityQueue<K extends Comparable, V> implements PriorityQueue
 
         int parent = parent(location);
 
-        if (storage[parent].key.compareTo(storage[location].key) > 0) {
+        if (minHeap[parent].key.compareTo(minHeap[location].key) > 0) {
             swap(location, parent);
             upHeap(parent);
         }
@@ -150,15 +150,15 @@ public class HeapPriorityQueue<K extends Comparable, V> implements PriorityQueue
 
         //left in right out;
         if (left == tail) {
-            if (storage[location].key.compareTo(storage[left].key) > 0)
+            if (minHeap[location].key.compareTo(minHeap[left].key) > 0)
                 swap(location, left);
             return;
         }
 
-        int toSwap = (storage[left].key.compareTo(storage[right].key) < 0) ?
+        int toSwap = (minHeap[left].key.compareTo(minHeap[right].key) < 0) ?
                 left : right;
 
-        if (storage[location].key.compareTo(storage[toSwap].key) > 0) {
+        if (minHeap[location].key.compareTo(minHeap[toSwap].key) > 0) {
             swap(location, toSwap);
             downHeap(toSwap);
         }
@@ -180,17 +180,17 @@ public class HeapPriorityQueue<K extends Comparable, V> implements PriorityQueue
      * O(1)
      */
     private void swap(int location1, int location2) {
-        Entry<K, V> temp = storage[location1];
-        storage[location1] = storage[location2];
-        storage[location2] = temp;
+        Entry<K, V> temp = minHeap[location1];
+        minHeap[location1] = minHeap[location2];
+        minHeap[location2] = temp;
 
-        storage[location1].index = location1;
-        storage[location2].index = location2;
+        minHeap[location1].index = location1;
+        minHeap[location2].index = location2;
     } /* swap */
 
     public void print() {
 
-        for (Entry<K, V> e : storage)
+        for (Entry<K, V> e : minHeap)
             System.out.println("(" + e.key.toString() + "," + e.value.toString() + ":" + e.index + "), ");
     }
 }
