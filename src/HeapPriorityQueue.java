@@ -191,7 +191,10 @@ public class HeapPriorityQueue<K extends Comparable, V> implements PriorityQueue
 
     public void print() {
 
-        for (Entry<K, V> e : minHeap)
-            System.out.println("(" + e.key.toString() + "," + e.value.toString() + ":" + e.index + "), ");
+        System.out.println("\nMIN HEAP");
+        for (int i = 0; i <= tail; i++) {
+            System.out.print(minHeap[i] + ", ");
+        }
+        System.out.println();
     }
 }

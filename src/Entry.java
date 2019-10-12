@@ -48,4 +48,9 @@ public class Entry<K extends Comparable, V> {
 
         return associate;
     }
+
+    @Override
+    public String toString() {
+        return "(" + key + "," + value + ":" + index + (associate == null ? "" : ",a" + associate.key) + ")";
+    }
 }
