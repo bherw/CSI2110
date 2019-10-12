@@ -61,7 +61,6 @@ public class HeapPriorityQueue<K extends Comparable, V> implements PriorityQueue
      *
      * @param key   the key of the new entry
      * @param value the associated value of the new entry
-     * @param ref   a reference to the associated entry in the othe heap
      * @return the entry storing the new key-value pair
      * @throws IllegalArgumentException if the heap is full
      */
