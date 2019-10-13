@@ -121,6 +121,12 @@ public class HeapPriorityQueue<K extends Comparable<? super K>, V> implements Pr
     } /* min */
 
 
+    /**
+     * Returns (but does not remove) an entry with maximal key.
+     * O(1)
+     *
+     * @return entry having a maximal key (or null if empty)
+     */
     public Entry<K, V> max() {
         return extremum(maxHeap, MAX_HEAP_OPERATION);
     }
