@@ -7,8 +7,8 @@ public class HeapPriorityQueue<K extends Comparable, V> implements PriorityQueue
     private static final int MIN_HEAP_OPERATION = 1;
     private static final int MAX_HEAP_OPERATION = -1;
 
-    private Entry[] minHeap;
-    private Entry[] maxHeap;
+    private Entry<K, V>[] minHeap;
+    private Entry<K, V>[] maxHeap;
     private Entry<K, V> buffer;
     private int tail = -1;
 
@@ -23,6 +23,7 @@ public class HeapPriorityQueue<K extends Comparable, V> implements PriorityQueue
     /**
      * HeapPriorityQueue constructor with max storage of size elements
      */
+    @SuppressWarnings("unchecked")
     public HeapPriorityQueue(int size) {
         minHeap = new Entry[size / 2];
         maxHeap = new Entry[size / 2];
@@ -102,7 +103,7 @@ public class HeapPriorityQueue<K extends Comparable, V> implements PriorityQueue
      * @param e         an entry
      * @param operation the operations this heap uses
      */
-    private void insert(Entry[] heap, Entry<K, V> e, int operation) {
+    private void insert(Entry<K, V>[] heap, Entry<K, V> e, int operation) {
         heap[tail] = e;
         e.setIndex(tail);
         upHeap(heap, tail, operation);
@@ -217,7 +218,7 @@ public class HeapPriorityQueue<K extends Comparable, V> implements PriorityQueue
      * Algorithm to fix element position after placement in an arbitrary position
      * in the list. O(log(n))
      */
-    private void upDownHeap(Entry[] heap, int location, int operation) {
+    private void upDownHeap(Entry<K, V>[] heap, int location, int operation) {
         if (location > 0) {
             int parent = parent(location);
 
@@ -235,7 +236,7 @@ public class HeapPriorityQueue<K extends Comparable, V> implements PriorityQueue
      * Algorithm to place element after insertion at the tail.
      * O(log(n))
      */
-    private void upHeap(Entry[] heap, int location, int operation) {
+    private void upHeap(Entry<K, V>[] heap, int location, int operation) {
         if (location == 0) return;
 
         int parent = parent(location);
@@ -251,7 +252,7 @@ public class HeapPriorityQueue<K extends Comparable, V> implements PriorityQueue
      * Algorithm to place element after removal of root and tail element placed at root.
      * O(log(n))
      */
-    private void downHeap(Entry[] heap, int location, int operation) {
+    private void downHeap(Entry<K, V>[] heap, int location, int operation) {
         int left = (location * 2) + 1;
         int right = (location * 2) + 2;
 
@@ -289,7 +290,7 @@ public class HeapPriorityQueue<K extends Comparable, V> implements PriorityQueue
      * Inplace swap of 2 elements, assumes locations are in array
      * O(1)
      */
-    private void swap(Entry[] heap, int location1, int location2) {
+    private void swap(Entry<K, V>[] heap, int location1, int location2) {
         Entry<K, V> temp = heap[location1];
         heap[location1] = heap[location2];
         heap[location2] = temp;

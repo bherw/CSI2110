@@ -2,7 +2,7 @@ public class Entry<K extends Comparable, V> {
     K key;            // the key
     V value;          // the value
     int index;        // position of the element in the array
-    Entry associate;  // reference to the associate element in the other heap
+    Entry<K, V> associate;  // reference to the associate element in the other heap
 
     /**
      * Returns the key stored in this entry.
@@ -39,7 +39,7 @@ public class Entry<K extends Comparable, V> {
         return index;
     }
 
-    public void setAssociate(Entry e) {
+    public void setAssociate(Entry<K, V> e) {
 
         associate = e;
     }
