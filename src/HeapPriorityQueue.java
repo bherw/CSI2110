@@ -117,16 +117,28 @@ public class HeapPriorityQueue<K extends Comparable<? super K>, V> implements Pr
      * @return entry having a minimal key (or null if empty)
      */
     public Entry<K, V> min() {
+        return extremum(minHeap, MIN_HEAP_OPERATION);
+    } /* min */
+
+
+    /**
+     * Returns (but does not remove) an entry with min/max key depending on the heap selected. O(1)
+     *
+     * @param heap      the min or max heap
+     * @param operation the operation modifier used for this heap
+     * @return entry having extreme key (or null if empty)
+     */
+    private Entry<K, V> extremum(Entry<K, V>[] heap, int operation) {
         if (isEmpty())
             return null;
         if (tail == -1)
             return buffer;
         if (buffer == null)
-            return minHeap[0];
-        if (buffer.key.compareTo(minHeap[0].key) < 0)
+            return heap[0];
+        if (buffer.key.compareTo(heap[0].key) * operation < 0)
             return buffer;
-        return minHeap[0];
-    } /* min */
+        return heap[0];
+    }
 
 
     /**
