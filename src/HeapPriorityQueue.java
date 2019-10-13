@@ -143,22 +143,36 @@ public class HeapPriorityQueue<K extends Comparable<? super K>, V> implements Pr
 
     /**
      * Removes and returns an entry with minimal key.
-     * O(n)
+     * O(n) in worst case due to the need to shift items.
      *
      * @return the removed entry (or null if empty)
      */
     public Entry<K, V> removeMin() {
+        return removeExtremum(minHeap, maxHeap, MIN_HEAP_OPERATION);
+    } /* removeMin */
+
+
+    /**
+     * Removes and returns the entry with minimal or maximal key, depending on the heap selected.
+     * O(n) in worst case due to the need to shift items.
+     *
+     * @param thisHeap the heap to remove an item from
+     * @param otherHeap the other heap
+     * @param operation the operation modifier used for this heap
+     * @return the removed entry (or null if empty)
+     */
+    private Entry<K, V> removeExtremum(Entry<K, V>[] thisHeap, Entry<K, V>[] otherHeap, int operation) {
         if (isEmpty())
             return null;
 
         // Buffer is min -> return buffer
-        if (buffer != null && (tail == -1 || buffer.key.compareTo(minHeap[0].key) < 0)) {
+        if (buffer != null && (tail == -1 || buffer.key.compareTo(thisHeap[0].key) * operation < 0)) {
             Entry<K, V> ret = buffer;
             buffer = null;
             return ret;
         }
 
-        Entry<K, V> ret = minHeap[0];
+        Entry<K, V> ret = thisHeap[0];
         Entry<K, V> associate = ret.associate;
 
         ret.associate = null;
@@ -167,27 +181,27 @@ public class HeapPriorityQueue<K extends Comparable<? super K>, V> implements Pr
         if (buffer == null) {
             buffer = associate;
 
-            // Remove associated element from maxHeap.
-            // Worst case: we have to shift the entire maxHeap left by one
+            // Remove associated element from otherHeap.
+            // Worst case: we have to shift the entire heap left by one
             for (int i = associate.index; i < tail; i++) {
-                maxHeap[i] = maxHeap[i + 1];
-                maxHeap[i].index = i;
+                otherHeap[i] = otherHeap[i + 1];
+                otherHeap[i].index = i;
             }
-            maxHeap[tail] = null;
+            otherHeap[tail] = null;
 
             if (tail != 0) {
-                minHeap[0] = minHeap[tail];
+                thisHeap[0] = thisHeap[tail];
             }
-            minHeap[tail] = null;
+            thisHeap[tail] = null;
             tail--;
 
-            // Fix maxHeap ordering by rebuilding it from the bottom up.
+            // Fix otherHeap ordering by rebuilding it from the bottom up.
             for (int i = tail - 1; i >= associate.index; i--) {
-                downHeap(maxHeap, i, MAX_HEAP_OPERATION);
+                downHeap(otherHeap, i, operation * -1);
             }
 
             if (tail != -1) {
-                downHeap(minHeap, 0, MIN_HEAP_OPERATION);
+                downHeap(thisHeap, 0, operation);
             }
         }
         else {
@@ -197,27 +211,27 @@ public class HeapPriorityQueue<K extends Comparable<? super K>, V> implements Pr
 
             // Buffer is smaller -> replace the removed entry in minHeap
             if (buffer.key.compareTo(associate.key) < 0) {
-                minHeap[0] = buffer;
+                thisHeap[0] = buffer;
                 buffer.index = 0;
-                downHeap(minHeap, 0, MIN_HEAP_OPERATION);
+                downHeap(thisHeap, 0, operation);
             }
 
             // Buffer is larger -> associate moves to minHeap, buffer replaces associate in maxHeap
             else {
-                maxHeap[associate.index] = buffer;
-                minHeap[0] = associate;
+                otherHeap[associate.index] = buffer;
+                thisHeap[0] = associate;
                 buffer.index = associate.index;
                 associate.index = 0;
 
-                downHeap(minHeap, 0, MIN_HEAP_OPERATION);
-                upDownHeap(maxHeap, buffer.index, MAX_HEAP_OPERATION);
+                downHeap(thisHeap, 0, operation);
+                upDownHeap(otherHeap, buffer.index, operation * -1);
             }
 
             buffer = null;
         }
 
         return ret;
-    } /* removeMin */
+    }
 
 
     /****************************************************
