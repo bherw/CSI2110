@@ -209,14 +209,14 @@ public class HeapPriorityQueue<K extends Comparable<? super K>, V> implements Pr
             buffer.associate = associate;
             associate.associate = buffer;
 
-            // Buffer is smaller -> replace the removed entry in minHeap
-            if (buffer.key.compareTo(associate.key) < 0) {
+            // Buffer is smaller -> replace the removed entry in thisHeap
+            if (buffer.key.compareTo(associate.key) * comparisonModifier < 0) {
                 thisHeap[0] = buffer;
                 buffer.index = 0;
                 downHeap(thisHeap, 0, comparisonModifier);
             }
 
-            // Buffer is larger -> associate moves to minHeap, buffer replaces associate in maxHeap
+            // Buffer is larger -> associate moves to thisHeap, buffer replaces associate in otherHeap
             else {
                 otherHeap[associate.index] = buffer;
                 thisHeap[0] = associate;
