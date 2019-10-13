@@ -36,6 +36,14 @@ public class HeapPriorityQueueTest {
     }
 
     @Test
+    public void constructor__oddSize() {
+        pq = new HeapPriorityQueue<>(3);
+        for (int i = 0; i < 3; i++) {
+            pq.insert(i, i);
+        }
+    }
+
+    @Test
     public void size__removeMin() {
         for (int i = 0; i < BASE_SIZE; i++) {
             assertEquals(i, pq.size());
@@ -120,7 +128,7 @@ public class HeapPriorityQueueTest {
     @Test(expected = IllegalArgumentException.class)
     public void insert__IllegalArgumentException() {
         pq = new HeapPriorityQueue<>(2);
-        for (int i = 0; i < 3; i++) {
+        for (int i = 0; i < 4; i++) {
             pq.insert(i, i);
         }
     }

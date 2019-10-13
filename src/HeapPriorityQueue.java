@@ -21,7 +21,11 @@ public class HeapPriorityQueue<K extends Comparable<? super K>, V> implements Pr
 
 
     /**
-     * HeapPriorityQueue constructor with max storage of size elements
+     * HeapPriorityQueue constructor with max storage of size elements.
+     *
+     * Note that due to use of a buffer, if size is even, the true storage size is size + 1.
+     *
+     * @param size max storage size
      */
     @SuppressWarnings("unchecked")
     public HeapPriorityQueue(int size) {
@@ -68,7 +72,7 @@ public class HeapPriorityQueue<K extends Comparable<? super K>, V> implements Pr
      * @throws IllegalArgumentException if the heap is full
      */
     public Entry<K, V> insert(K key, V value) throws IllegalArgumentException {
-        if (tail == minHeap.length - 1)
+        if (tail == minHeap.length - 1 && buffer != null)
             throw new IllegalArgumentException("Heap Overflow");
 
         Entry<K, V> e = new Entry<>(key, value);
