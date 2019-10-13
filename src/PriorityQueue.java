@@ -44,4 +44,18 @@ public interface PriorityQueue<K extends Comparable<? super K>, V> {
      * @return the removed entry (or null if empty)
      */
     Entry<K, V> removeMin();
+
+    /**
+     * Returns (but does not remove) an entry with maximal key.
+     *
+     * @return entry having a minimal key (or null if empty)
+     */
+    Entry<K, V> max();
+
+    /**
+     * Removes and returns an entry with maximal key.
+     *
+     * @return the removed entry (or null if empty)
+     */
+    Entry<K, V> removeMax();
 }

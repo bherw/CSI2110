@@ -52,6 +52,21 @@ public class HeapPriorityQueueTest {
     }
 
     @Test
+    public void size__removeMax() {
+        for (int i = 0; i < BASE_SIZE; i++) {
+            assertEquals(i, pq.size());
+            pq.insert(i, i);
+            assertEquals(i + 1, pq.size());
+        }
+
+        for (int i = BASE_SIZE; i > 0; i--) {
+            assertEquals(i, pq.size());
+            pq.removeMax();
+            assertEquals(i - 1, pq.size());
+        }
+    }
+
+    @Test
     public void isEmpty__removeMin() {
         assertTrue(pq.isEmpty());
         for (int i = 0; i < BASE_SIZE; i++) {
@@ -67,6 +82,21 @@ public class HeapPriorityQueueTest {
     }
 
     @Test
+    public void isEmpty__removeMax() {
+        assertTrue(pq.isEmpty());
+        for (int i = 0; i < BASE_SIZE; i++) {
+            pq.insert(i, i);
+            assertFalse(pq.isEmpty());
+        }
+
+        for (int i = BASE_SIZE; i > 0; i--) {
+            assertFalse(pq.isEmpty());
+            pq.removeMax();
+        }
+        assertTrue(pq.isEmpty());
+    }
+
+    @Test
     public void insert__reverse__removeMin() {
         for (int i = BASE_SIZE - 1; i > -1; i--) {
             pq.insert(i, i);
@@ -74,6 +104,17 @@ public class HeapPriorityQueueTest {
 
         for (int i = 0; i < BASE_SIZE; i++) {
             assertEquals(i, (int) pq.removeMin().getKey());
+        }
+    }
+
+    @Test
+    public void insert__reverse__removeMax() {
+        for (int i = 0; i < BASE_SIZE; i++) {
+            pq.insert(i, i);
+        }
+
+        for (int i = BASE_SIZE - 1; i > 0; i--) {
+            assertEquals(i, (int) pq.removeMax().getKey());
         }
     }
 
@@ -94,6 +135,21 @@ public class HeapPriorityQueueTest {
         for (int i = 0; i < BASE_SIZE; i++) {
             assertEquals(testArrayAsc[i], pq.min().key.intValue());
             assertEquals(testArrayAsc[i], pq.removeMin().key.intValue());
+        }
+
+        assertEquals(null, pq.min());
+        assertEquals(null, pq.removeMin());
+    }
+
+    @Test
+    public void max__removeMax() {
+        for (int i = 0; i < BASE_SIZE; i++) {
+            pq.insert(testArray[i], testArray[i]);
+        }
+
+        for (int i = 0; i < BASE_SIZE; i++) {
+            assertEquals(testArrayDesc[i], pq.max().key.intValue());
+            assertEquals(testArrayDesc[i], pq.removeMax().key.intValue());
         }
 
         assertEquals(null, pq.min());

@@ -121,6 +121,11 @@ public class HeapPriorityQueue<K extends Comparable<? super K>, V> implements Pr
     } /* min */
 
 
+    public Entry<K, V> max() {
+        return extremum(maxHeap, MAX_HEAP_OPERATION);
+    }
+
+
     /**
      * Returns (but does not remove) an entry with min/max key depending on the heap selected. O(1)
      *
@@ -150,6 +155,17 @@ public class HeapPriorityQueue<K extends Comparable<? super K>, V> implements Pr
     public Entry<K, V> removeMin() {
         return removeExtremum(minHeap, maxHeap, MIN_HEAP_OPERATION);
     } /* removeMin */
+
+
+    /**
+     * Removes and returns an entry with maximal key.
+     * O(n) in worst case due to the need to shift items.
+     *
+     * @return the removed entry (or null if empty)
+     */
+    public Entry<K, V> removeMax() {
+        return removeExtremum(maxHeap, minHeap, MAX_HEAP_OPERATION);
+    }
 
 
     /**
