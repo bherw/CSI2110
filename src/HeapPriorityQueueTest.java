@@ -34,12 +34,10 @@ public class HeapPriorityQueueTest {
         System.out.println();
 
         // removeMax
-        /*		
-		for( int i = 0; i < 8; i++ ) {
+        for( int i = 0; i < 8; i++ ) {
 			Entry <Integer, Character>    e = pq.removeMax();
 			System.out.print ( "(" + e.key.toString() + "," + e.value.toString() + ":" + e.index + "), " );
 		}
-		*/
 
         System.out.println();
         System.out.println();
@@ -53,12 +51,10 @@ public class HeapPriorityQueueTest {
         System.out.println();
         System.out.println();
 
-        // removeMax		
-		/* 
+        // removeMax
 		for( int i = 0; i < 8; i++ ) {
 			Entry <Integer, Character>    e = pq.removeMax();
 			System.out.print ( "(" + e.key.toString() + "," + e.value.toString() + ":" + e.index + "), " );
 		}
-		*/
     }
 }
