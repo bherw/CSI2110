@@ -195,29 +195,30 @@ public class HeapPriorityQueue<K extends Comparable<? super K>, V> implements Pr
         associate.associate = null;
 
         if (buffer == null) {
-            buffer = associate;
+            // Remove element from thisHeap
+            if (tail != 0) {
+                thisHeap[0] = thisHeap[tail];
+            }
+            thisHeap[tail] = null;
 
             // Remove associated element from otherHeap.
             // Worst case: we have to shift the entire heap left by one
+            buffer = associate;
             for (int i = associate.index; i < tail; i++) {
                 otherHeap[i] = otherHeap[i + 1];
                 otherHeap[i].index = i;
             }
             otherHeap[tail] = null;
 
-            if (tail != 0) {
-                thisHeap[0] = thisHeap[tail];
-            }
-            thisHeap[tail] = null;
+            // Now both heaps are the same length again, we can fix the heap ordering.
             tail--;
+            if (tail != -1) {
+                downHeap(thisHeap, 0, comparisonModifier);
+            }
 
             // Fix otherHeap ordering by rebuilding it from the bottom up.
             for (int i = tail - 1; i >= associate.index; i--) {
                 downHeap(otherHeap, i, comparisonModifier * -1);
-            }
-
-            if (tail != -1) {
-                downHeap(thisHeap, 0, comparisonModifier);
             }
         }
         else {
@@ -225,20 +226,21 @@ public class HeapPriorityQueue<K extends Comparable<? super K>, V> implements Pr
             buffer.associate = associate;
             associate.associate = buffer;
 
-            // Buffer is smaller -> replace the removed entry in thisHeap
+            // If buffer belongs in thisHeap -> replace the removed entry in thisHeap
             if (buffer.key.compareTo(associate.key) * comparisonModifier < 0) {
                 thisHeap[0] = buffer;
                 buffer.index = 0;
                 downHeap(thisHeap, 0, comparisonModifier);
             }
 
-            // Buffer is larger -> associate moves to thisHeap, buffer replaces associate in otherHeap
+            // If buffer belongs in otherHeap -> move the associate to thisHeap and put buffer in its place in otherHeap
             else {
                 otherHeap[associate.index] = buffer;
                 thisHeap[0] = associate;
                 buffer.index = associate.index;
                 associate.index = 0;
 
+                // Now fix heap ordering
                 downHeap(thisHeap, 0, comparisonModifier);
                 upDownHeap(otherHeap, buffer.index, comparisonModifier * -1);
             }
