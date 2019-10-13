@@ -101,12 +101,12 @@ public class HeapPriorityQueue<K extends Comparable<? super K>, V> implements Pr
      *
      * @param heap      a heap
      * @param e         an entry
-     * @param operation the operations this heap uses
+     * @param comparisonModifier the compareTo modifier this heap uses
      */
-    private void insert(Entry<K, V>[] heap, Entry<K, V> e, int operation) {
+    private void insert(Entry<K, V>[] heap, Entry<K, V> e, int comparisonModifier) {
         heap[tail] = e;
         e.setIndex(tail);
-        upHeap(heap, tail, operation);
+        upHeap(heap, tail, comparisonModifier);
     }
 
 
@@ -125,17 +125,17 @@ public class HeapPriorityQueue<K extends Comparable<? super K>, V> implements Pr
      * Returns (but does not remove) an entry with min/max key depending on the heap selected. O(1)
      *
      * @param heap      the min or max heap
-     * @param operation the operation modifier used for this heap
+     * @param comparisonModifier the compareTo modifier this heap uses
      * @return entry having extreme key (or null if empty)
      */
-    private Entry<K, V> extremum(Entry<K, V>[] heap, int operation) {
+    private Entry<K, V> extremum(Entry<K, V>[] heap, int comparisonModifier) {
         if (isEmpty())
             return null;
         if (tail == -1)
             return buffer;
         if (buffer == null)
             return heap[0];
-        if (buffer.key.compareTo(heap[0].key) * operation < 0)
+        if (buffer.key.compareTo(heap[0].key) * comparisonModifier < 0)
             return buffer;
         return heap[0];
     }
@@ -158,15 +158,15 @@ public class HeapPriorityQueue<K extends Comparable<? super K>, V> implements Pr
      *
      * @param thisHeap the heap to remove an item from
      * @param otherHeap the other heap
-     * @param operation the operation modifier used for this heap
+     * @param comparisonModifier the compareTo modifier this heap uses
      * @return the removed entry (or null if empty)
      */
-    private Entry<K, V> removeExtremum(Entry<K, V>[] thisHeap, Entry<K, V>[] otherHeap, int operation) {
+    private Entry<K, V> removeExtremum(Entry<K, V>[] thisHeap, Entry<K, V>[] otherHeap, int comparisonModifier) {
         if (isEmpty())
             return null;
 
         // Buffer is min -> return buffer
-        if (buffer != null && (tail == -1 || buffer.key.compareTo(thisHeap[0].key) * operation < 0)) {
+        if (buffer != null && (tail == -1 || buffer.key.compareTo(thisHeap[0].key) * comparisonModifier < 0)) {
             Entry<K, V> ret = buffer;
             buffer = null;
             return ret;
@@ -197,11 +197,11 @@ public class HeapPriorityQueue<K extends Comparable<? super K>, V> implements Pr
 
             // Fix otherHeap ordering by rebuilding it from the bottom up.
             for (int i = tail - 1; i >= associate.index; i--) {
-                downHeap(otherHeap, i, operation * -1);
+                downHeap(otherHeap, i, comparisonModifier * -1);
             }
 
             if (tail != -1) {
-                downHeap(thisHeap, 0, operation);
+                downHeap(thisHeap, 0, comparisonModifier);
             }
         }
         else {
@@ -213,7 +213,7 @@ public class HeapPriorityQueue<K extends Comparable<? super K>, V> implements Pr
             if (buffer.key.compareTo(associate.key) < 0) {
                 thisHeap[0] = buffer;
                 buffer.index = 0;
-                downHeap(thisHeap, 0, operation);
+                downHeap(thisHeap, 0, comparisonModifier);
             }
 
             // Buffer is larger -> associate moves to minHeap, buffer replaces associate in maxHeap
@@ -223,8 +223,8 @@ public class HeapPriorityQueue<K extends Comparable<? super K>, V> implements Pr
                 buffer.index = associate.index;
                 associate.index = 0;
 
-                downHeap(thisHeap, 0, operation);
-                upDownHeap(otherHeap, buffer.index, operation * -1);
+                downHeap(thisHeap, 0, comparisonModifier);
+                upDownHeap(otherHeap, buffer.index, comparisonModifier * -1);
             }
 
             buffer = null;
@@ -244,32 +244,32 @@ public class HeapPriorityQueue<K extends Comparable<? super K>, V> implements Pr
      * Algorithm to fix element position after placement in an arbitrary position
      * in the list. O(log(n))
      */
-    private void upDownHeap(Entry<K, V>[] heap, int location, int operation) {
+    private void upDownHeap(Entry<K, V>[] heap, int location, int comparisonModifier) {
         if (location > 0) {
             int parent = parent(location);
 
-            if (heap[parent].key.compareTo(heap[location].key) * operation > 0) {
+            if (heap[parent].key.compareTo(heap[location].key) * comparisonModifier > 0) {
                 swap(heap, location, parent);
-                upHeap(heap, parent, operation);
+                upHeap(heap, parent, comparisonModifier);
                 return;
             }
         }
 
-        downHeap(heap, location, operation);
+        downHeap(heap, location, comparisonModifier);
     }
 
     /**
      * Algorithm to place element after insertion at the tail.
      * O(log(n))
      */
-    private void upHeap(Entry<K, V>[] heap, int location, int operation) {
+    private void upHeap(Entry<K, V>[] heap, int location, int comparisonModifier) {
         if (location == 0) return;
 
         int parent = parent(location);
 
-        if (heap[parent].key.compareTo(heap[location].key) * operation > 0) {
+        if (heap[parent].key.compareTo(heap[location].key) * comparisonModifier > 0) {
             swap(heap, location, parent);
-            upHeap(heap, parent, operation);
+            upHeap(heap, parent, comparisonModifier);
         }
     } /* upHeap */
 
@@ -278,7 +278,7 @@ public class HeapPriorityQueue<K extends Comparable<? super K>, V> implements Pr
      * Algorithm to place element after removal of root and tail element placed at root.
      * O(log(n))
      */
-    private void downHeap(Entry<K, V>[] heap, int location, int operation) {
+    private void downHeap(Entry<K, V>[] heap, int location, int comparisonModifier) {
         int left = (location * 2) + 1;
         int right = (location * 2) + 2;
 
@@ -287,17 +287,17 @@ public class HeapPriorityQueue<K extends Comparable<? super K>, V> implements Pr
 
         //left in right out;
         if (left == tail) {
-            if (heap[location].key.compareTo(heap[left].key) * operation > 0)
+            if (heap[location].key.compareTo(heap[left].key) * comparisonModifier > 0)
                 swap(heap, location, left);
             return;
         }
 
-        int toSwap = (heap[left].key.compareTo(heap[right].key) * operation < 0) ?
+        int toSwap = (heap[left].key.compareTo(heap[right].key) * comparisonModifier < 0) ?
                 left : right;
 
-        if (heap[location].key.compareTo(heap[toSwap].key) * operation > 0) {
+        if (heap[location].key.compareTo(heap[toSwap].key) * comparisonModifier > 0) {
             swap(heap, location, toSwap);
-            downHeap(heap, toSwap, operation);
+            downHeap(heap, toSwap, comparisonModifier);
         }
     } /* downHeap */
 
