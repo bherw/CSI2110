@@ -92,7 +92,6 @@ public class HeapPriorityQueueTest {
         }
 
         for (int i = 0; i < BASE_SIZE; i++) {
-            System.out.println(i + ": " + testArrayAsc[i]);
             assertEquals(testArrayAsc[i], pq.min().key.intValue());
             assertEquals(testArrayAsc[i], pq.removeMin().key.intValue());
         }
