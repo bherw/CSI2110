@@ -1,4 +1,4 @@
-public class Entry<K extends Comparable, V> {
+public class Entry<K extends Comparable<? super K>, V> {
     K key;            // the key
     V value;          // the value
     int index;        // position of the element in the array

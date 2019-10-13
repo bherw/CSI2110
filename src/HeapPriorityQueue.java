@@ -3,7 +3,7 @@
  *
  * @author Lachlan Plant
  */
-public class HeapPriorityQueue<K extends Comparable, V> implements PriorityQueue<K, V> {
+public class HeapPriorityQueue<K extends Comparable<? super K>, V> implements PriorityQueue<K, V> {
     private static final int MIN_HEAP_OPERATION = 1;
     private static final int MAX_HEAP_OPERATION = -1;
 

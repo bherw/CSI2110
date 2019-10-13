@@ -5,7 +5,7 @@
  * @author Roberto Tamassia
  * @author Michael H. Goldwasser
  */
-public interface PriorityQueue<K extends Comparable, V> {
+public interface PriorityQueue<K extends Comparable<? super K>, V> {
 
     /**
      * Returns the number of items in the priority queue.
