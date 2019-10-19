@@ -360,15 +360,21 @@ public class HeapPriorityQueue<K extends Comparable<? super K>, V> implements Pr
         }
 
         System.out.println("\nMIN HEAP");
-        for (int i = 0; i <= tail; i++) {
-            System.out.print(minHeap[i] + ", ");
-        }
+        prettyPrint(minHeap, 0, 0);
         System.out.println();
 
         System.out.println("\nMAX HEAP");
-        for (int i = 0; i <= tail; i++) {
-            System.out.print(maxHeap[i] + ", ");
-        }
+        prettyPrint(maxHeap, 0, 0);
         System.out.println();
+    }
+
+    private void prettyPrint(Entry<K, V>[] heap, int location, int tabs) {
+        if (tail < location) return;
+        for (int i = 0; i<tabs; i++) {
+            System.out.print("  ");
+        }
+        System.out.println(heap[location]);
+        prettyPrint(heap, 2 * location + 1, tabs + 1);
+        prettyPrint(heap, 2 * location + 2, tabs + 1);
     }
 }
