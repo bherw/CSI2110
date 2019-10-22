@@ -230,14 +230,13 @@ public class HeapPriorityQueue<K extends Comparable<? super K>, V> implements Pr
             // We only need to fix the part messed up by shifting the array,
             // but more significant values may bubble up, so we need to bubble them up.
             // Unlike a normal rebuild from ground up, we know the top of the tree is good,
-            // so once we get to the left child of the first shuffled entry,
-            // we can bubble the remaining row (which is spread on two levels)
-            // in both directions.
-            for (int i = tail - 1; i >= 2 * associate.index + 1; i--) {
+            // so once we get to the last entry that was shifted, we can upHeap the remaining row,
+            // which is spread across two levels.
+            for (int i = tail - 1; i >= associate.index; i--) {
                 downHeap(otherHeap, i, comparisonModifier * -1);
             }
             for (int i = Math.min(2 * associate.index, tail - 1); i >= associate.index; i--) {
-                upDownHeap(otherHeap, i, comparisonModifier * -1);
+                upHeap(otherHeap, i, comparisonModifier * -1);
             }
         }
         else {
