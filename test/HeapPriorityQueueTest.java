@@ -1,21 +1,25 @@
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.Arrays;
-import java.util.Random;
+import java.net.InetAddress;
+import java.util.*;
+import java.util.function.ToIntFunction;
 
 import static org.junit.Assert.*;
 
+/**
+ * @Author Ben Herweyer <benjamin.herweyer@gmail.com>
+ */
 public class HeapPriorityQueueTest {
     public static final int BASE_SIZE = 1000;
 
     private static final int[] testArray = new int[BASE_SIZE];
     private static final int[] testArrayAsc;
     private static final int[] testArrayDesc;
+    private static Random rng = new Random(12345);
 
 
     static {
-        Random rng = new Random(12345);
         for (int i = 0; i < BASE_SIZE; i++) {
             testArray[i] = rng.nextInt(10000);
         }
@@ -168,6 +172,63 @@ public class HeapPriorityQueueTest {
         for (int i = 0; i < 4; i++) {
             ((HeapPriorityQueue) pq).print();
             pq.insert(i, i);
+        }
+    }
+
+    @Test
+    // This test ensures the heap is rebuilt correctly after removing an element from the middle and then shifting the remaining elements left.
+    public void testRemoveFromBothEnds() {
+        List<Integer> seen = new ArrayList<>();
+        List<Entry<Integer, Integer>> elementsList = new ArrayList<>();
+        Deque<Entry<Integer, Integer>> dq;
+        int min = -1, max = Integer.MAX_VALUE;
+        int chunkSize = BASE_SIZE / 4;
+
+        // Need to guarantee non-equality of keys for this test since we need the pq
+        // to return values in the same order as the sorted Deque.
+        for (int i = 0; i < BASE_SIZE; i++) {
+            int randInt = i * BASE_SIZE + rng.nextInt(BASE_SIZE);
+            elementsList.add(pq.insert(randInt, randInt));
+        }
+
+        elementsList.sort(Comparator.comparingInt(Entry::getKey));
+        dq = new ArrayDeque<>(elementsList);
+
+        for (int i = 0; i < chunkSize; i++) {
+            Entry<Integer, Integer> e = pq.removeMin();
+            seen.add(e.key);
+            assertEquals(seen.size(), BASE_SIZE - pq.size());
+            assertTrue(e.key > min);
+            assertEquals(dq.pollFirst(), e);
+            min = e.key;
+        }
+
+        for (int i = 0; i < chunkSize; i++) {
+            Entry<Integer, Integer> e = pq.removeMax();
+            seen.add(e.key);
+            assertEquals(seen.size(), BASE_SIZE - pq.size());
+            assertTrue(e.key <= max);
+            assertEquals(dq.pollLast(), e);
+            max = e.key;
+        }
+
+
+        for (int i = 0; i < chunkSize; i++) {
+            Entry<Integer, Integer> e = pq.removeMin();
+            seen.add(e.key);
+            assertEquals(seen.size(), BASE_SIZE - pq.size());
+            assertTrue(e.key >= min);
+            assertEquals(dq.pollFirst(), e);
+            min = e.key;
+        }
+
+        while (!pq.isEmpty()) {
+            Entry<Integer, Integer> e = pq.removeMax();
+            seen.add(e.key);
+            assertEquals(seen.size(), BASE_SIZE - pq.size());
+            assertTrue(e.key <= max);
+            assertEquals(dq.pollLast(), e);
+            max = e.key;
         }
     }
 }
