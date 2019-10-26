@@ -174,7 +174,7 @@ public class HeapPriorityQueueTest {
     }
 
     @Test
-    // This test ensures the heap is rebuilt correctly after removing an element from the middle and then shifting the remaining elements left.
+    // This test ensures the heap is rebuilt correctly after removing an element from the middle.
     public void testRemoveFromBothEnds() {
         List<Integer> seen = new ArrayList<>();
         List<Entry<Integer, Integer>> elementsList = new ArrayList<>();
