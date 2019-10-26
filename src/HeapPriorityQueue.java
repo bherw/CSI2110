@@ -22,7 +22,7 @@ public class HeapPriorityQueue<K extends Comparable<? super K>, V> implements Pr
 
     /**
      * HeapPriorityQueue constructor with max storage of size elements.
-     *
+     * <p>
      * Note that due to use of a buffer, if size is even, the true storage size is size + 1.
      *
      * @param size max storage size
@@ -96,15 +96,14 @@ public class HeapPriorityQueue<K extends Comparable<? super K>, V> implements Pr
             buffer = null;
         }
 
-
         return e;
     } /* insert */
 
     /**
      * Inserts an entry into the specified heap. O(log(n))
      *
-     * @param heap      a heap
-     * @param e         an entry
+     * @param heap               a heap
+     * @param e                  an entry
      * @param comparisonModifier the compareTo modifier this heap uses
      */
     private void insert(Entry<K, V>[] heap, Entry<K, V> e, int comparisonModifier) {
@@ -139,7 +138,7 @@ public class HeapPriorityQueue<K extends Comparable<? super K>, V> implements Pr
     /**
      * Returns (but does not remove) an entry with min/max key depending on the heap selected. O(1)
      *
-     * @param heap      the min or max heap
+     * @param heap               the min or max heap
      * @param comparisonModifier the compareTo modifier this heap uses
      * @return entry having extreme key (or null if empty)
      */
@@ -378,7 +377,7 @@ public class HeapPriorityQueue<K extends Comparable<? super K>, V> implements Pr
 
     private void prettyPrint(Entry<K, V>[] heap, int location, int tabs) {
         if (tail < location) return;
-        for (int i = 0; i<tabs; i++) {
+        for (int i = 0; i < tabs; i++) {
             System.out.print("  ");
         }
         System.out.println(heap[location]);
