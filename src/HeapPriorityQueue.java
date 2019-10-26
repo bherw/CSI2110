@@ -4,6 +4,8 @@
  * @author Lachlan Plant
  */
 public class HeapPriorityQueue<K extends Comparable<? super K>, V> implements PriorityQueue<K, V> {
+    // Write compareTo calls as if operating on a minHeap, then multiply the output by the comparisonModifier.
+    // A -1 comparisonModifier flips the sign on the compareTo output making it correct for a maxHeap.
     private static final int MIN_HEAP_OPERATION = 1;
     private static final int MAX_HEAP_OPERATION = -1;
 
