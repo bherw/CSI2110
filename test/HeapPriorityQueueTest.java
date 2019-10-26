@@ -1,9 +1,7 @@
 import org.junit.Before;
 import org.junit.Test;
 
-import java.net.InetAddress;
 import java.util.*;
-import java.util.function.ToIntFunction;
 
 import static org.junit.Assert.*;
 
