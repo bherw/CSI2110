@@ -146,8 +146,8 @@ public class HeapPriorityQueueTest {
             assertEquals(testArrayAsc[i], pq.removeMin().key.intValue());
         }
 
-        assertEquals(null, pq.min());
-        assertEquals(null, pq.removeMin());
+        assertNull(pq.min());
+        assertNull(pq.removeMin());
     }
 
     @Test
@@ -161,8 +161,8 @@ public class HeapPriorityQueueTest {
             assertEquals(testArrayDesc[i], pq.removeMax().key.intValue());
         }
 
-        assertEquals(null, pq.min());
-        assertEquals(null, pq.removeMin());
+        assertNull(pq.max());
+        assertNull(pq.removeMax());
     }
 
     @Test
