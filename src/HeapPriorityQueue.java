@@ -159,7 +159,7 @@ public class HeapPriorityQueue<K extends Comparable<? super K>, V> implements Pr
 
     /**
      * Removes and returns an entry with minimal key.
-     * O(n) in worst case due to the need to shift items.
+     * O(log(n))
      *
      * @return the removed entry (or null if empty)
      */
@@ -170,7 +170,7 @@ public class HeapPriorityQueue<K extends Comparable<? super K>, V> implements Pr
 
     /**
      * Removes and returns an entry with maximal key.
-     * O(n) in worst case due to the need to shift items.
+     * O(log(n))
      *
      * @return the removed entry (or null if empty)
      */
@@ -181,10 +181,10 @@ public class HeapPriorityQueue<K extends Comparable<? super K>, V> implements Pr
 
     /**
      * Removes and returns the entry with minimal or maximal key, depending on the heap selected.
-     * O(n) in worst case due to the need to shift items.
+     * O(log(n))
      *
-     * @param thisHeap the heap to remove an item from
-     * @param otherHeap the other heap
+     * @param thisHeap           the heap to remove an item from
+     * @param otherHeap          the other heap
      * @param comparisonModifier the compareTo modifier this heap uses
      * @return the removed entry (or null if empty)
      */
@@ -209,35 +209,31 @@ public class HeapPriorityQueue<K extends Comparable<? super K>, V> implements Pr
             // Remove element from thisHeap
             if (tail != 0) {
                 thisHeap[0] = thisHeap[tail];
+                thisHeap[0].index = 0;
             }
             thisHeap[tail] = null;
 
             // Remove associated element from otherHeap.
-            // Worst case: we have to shift the entire heap left by one
             buffer = associate;
-            for (int i = associate.index; i < tail; i++) {
-                otherHeap[i] = otherHeap[i + 1];
-                otherHeap[i].index = i;
-            }
-            otherHeap[tail] = null;
+            int i = buffer.index;
+            buffer.index = 0;
 
-            // Now both heaps are the same length again, we can fix the heap ordering.
-            tail--;
+            if (i == tail) {
+                otherHeap[tail] = null;
+                tail--;
+            }
+            else {
+                // Associate was in the middle somewhere; swap the tail element into its place then fix the heap ordering.
+                otherHeap[i] = otherHeap[tail];
+                otherHeap[i].index = i;
+                otherHeap[tail] = null;
+                tail--;
+                upDownHeap(otherHeap, i, comparisonModifier * -1);
+            }
+
+            // Now that the tail pointer is decremented we can fix thisHeap ordering
             if (tail != -1) {
                 downHeap(thisHeap, 0, comparisonModifier);
-            }
-
-            // Fix otherHeap ordering by rebuilding it from the bottom up.
-            // We only need to fix the part messed up by shifting the array,
-            // but more significant values may bubble up, so we need to bubble them up.
-            // Unlike a normal rebuild from ground up, we know the top of the tree is good,
-            // so once we get to the last entry that was shifted, we can upHeap the remaining row,
-            // which is spread across two levels.
-            for (int i = parent(tail - 1); i >= associate.index; i--) {
-                downHeap(otherHeap, i, comparisonModifier * -1);
-            }
-            for (int i = Math.min(2 * associate.index, tail - 1); i >= associate.index; i--) {
-                upHeap(otherHeap, i, comparisonModifier * -1);
             }
         }
         else {
