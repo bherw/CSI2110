@@ -9,7 +9,7 @@ import static org.junit.Assert.*;
  * @Author Ben Herweyer <benjamin.herweyer@gmail.com>
  */
 public class HeapPriorityQueueTest {
-    public static final int BASE_SIZE = 1000;
+    public static final int BASE_SIZE = 100000;
 
     private static final int[] testArray = new int[BASE_SIZE];
     private static final int[] testArrayAsc;
@@ -179,13 +179,13 @@ public class HeapPriorityQueueTest {
         List<Integer> seen = new ArrayList<>();
         List<Entry<Integer, Integer>> elementsList = new ArrayList<>();
         Deque<Entry<Integer, Integer>> dq;
-        int min = -1, max = Integer.MAX_VALUE;
+        int min = Integer.MIN_VALUE, max = Integer.MAX_VALUE;
         int chunkSize = BASE_SIZE / 4;
 
         // Need to guarantee non-equality of keys for this test since we need the pq
         // to return values in the same order as the sorted Deque.
         for (int i = 0; i < BASE_SIZE; i++) {
-            int randInt = i * BASE_SIZE + rng.nextInt(BASE_SIZE);
+            int randInt = i * BASE_SIZE / 10 + rng.nextInt(BASE_SIZE / 100);
             elementsList.add(pq.insert(randInt, randInt));
         }
 
