@@ -10,10 +10,7 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @author Administrator
@@ -27,6 +24,7 @@ public class CSI2510 {
         String edgesFilename = "email-dnc.edges";
         Graph                       graph = readGraph(edgesFilename);
         List<Integer>               nodes = graph.getGraphNodes();
+        Collections.sort(nodes);
         Map<Integer, List<Integer>> edges = graph.getGraphEdges();
         
         System.out.println("Number of nodes in the Graph: " + nodes.size());
