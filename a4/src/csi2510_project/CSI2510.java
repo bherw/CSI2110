@@ -17,20 +17,16 @@ public class CSI2510 {
      */
     public static void main(String[] args) throws IOException {
         String edgesFilename = "email-dnc.edges";
-        List<Integer>               nodes = graph.getGraphNodes();
-        Collections.sort(nodes);
-        Map<Integer, List<Integer>> edges = graph.getGraphEdges();
         Graph graph = new GraphReader().read(edgesFilename);
+        Graph.Node[] nodes = graph.getNodes();
         
-        System.out.println("Number of nodes in the Graph: " + nodes.size());
+        System.out.println("Number of nodes in the Graph: " + nodes.length);
         
-        for(Integer node : nodes) {
-            System.out.println("Node number: " + node);
+        for(Graph.Node node : nodes) {
+            System.out.println("Node number: " + node.id);
             System.out.print("Adjacent Nodes: ");
-            if (edges.containsKey(node)) {
-                for(Integer edge : edges.get(node)) {
-                    System.out.print(edge + " ");
-                }
+            for (Graph.Edge edge : node.outgoingEdges) {
+                System.out.print(edge.to.id + " ");
             }
             System.out.println();
             System.out.println("------------------------------------");
