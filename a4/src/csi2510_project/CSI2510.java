@@ -9,7 +9,7 @@ import java.io.IOException;
 import java.util.Arrays;
 
 /**
- * @author Administrator
+ * @author Ben Herweyer
  */
 public class CSI2510 {
     public static final double DEFAULT_TOTAL_CHANGE_THRESHOLD = 0.001;

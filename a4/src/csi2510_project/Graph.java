@@ -8,7 +8,7 @@ package csi2510_project;
 import java.util.*;
 
 /**
- * @author Yahya Alaa
+ * @author Ben Herweyer
  */
 public class Graph {
     private static final double DAMPING_FACTOR = 0.85;

@@ -6,6 +6,10 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.*;
 
+/**
+ * @author Yahya Alaa
+ * @author Ben Herweyer
+ */
 public class GraphReader {
     List<Integer> nodes;
     Map<Integer, List<Integer>> edges;
