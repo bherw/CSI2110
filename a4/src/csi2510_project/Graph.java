@@ -64,14 +64,23 @@ public class Graph {
     }
 
     public double updatePageRankOneStep() {
+        double[] updatedPageRanks = new double[nodes.length];
         totalPageRank = 0;
         double totalPageRankChange = 0;
-        for (Node node : nodes) {
-            double oldPageRank = node.pageRank;
-            node.updatePageRank();
-            totalPageRankChange += Math.abs(node.pageRank - oldPageRank);
+
+        // Calculate new PR
+        for (int i = 0; i < nodes.length; i++) {
+            Node node = nodes[i];
+            updatedPageRanks[i] = node.getUpdatedPageRank();
+            totalPageRankChange += Math.abs(node.pageRank - updatedPageRanks[i]);
             totalPageRank += node.pageRank;
         }
+
+        // Update PR
+        for (int i = 0; i < nodes.length; i++) {
+            nodes[i].pageRank = updatedPageRanks[i];
+        }
+
         return totalPageRankChange;
     }
 
@@ -94,12 +103,12 @@ public class Graph {
             return incomingEdges.size();
         }
 
-        void updatePageRank() {
+        double getUpdatedPageRank() {
             double fromIncoming = 0;
             for (Edge edge : incomingEdges) {
                 fromIncoming += edge.from.pageRank / edge.from.outDegree();
             }
-            this.pageRank = 1 - DAMPING_FACTOR + DAMPING_FACTOR * fromIncoming;
+            return 1 - DAMPING_FACTOR + DAMPING_FACTOR * fromIncoming;
         }
     }
 
