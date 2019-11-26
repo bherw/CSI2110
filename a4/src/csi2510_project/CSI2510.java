@@ -29,8 +29,10 @@ public class CSI2510 {
         }
 
         String edgesFilename = "email-dnc.edges";
+        double startTime = System.currentTimeMillis();
         Graph graph = new GraphReader().read(edgesFilename);
         Graph.Node[] nodes = graph.getNodes();
+        System.out.println("Loaded graph in " + (System.currentTimeMillis() - startTime) + " ms");
 
         System.out.println("Number of nodes in the Graph: " + nodes.length);
         
@@ -47,6 +49,7 @@ public class CSI2510 {
         // Update page rank one step at a time
         int i = 1;
         double totalChange;
+        startTime = System.currentTimeMillis();
         do {
             totalChange = graph.updatePageRankOneStep();
 
@@ -55,6 +58,7 @@ public class CSI2510 {
             System.out.println("Page rank (avg/total): " + graph.getAveragePageRank() + " / " + graph.getTotalPageRank());
             System.out.println("------------------------------------");
         } while (totalChange > totalChangeThreshold);
+        System.out.println("PageRank stabilized in " + (System.currentTimeMillis() - startTime) + " ms");
 
         // Sort by pageRank DESC
         Arrays.sort(nodes, (a, b) -> {
@@ -66,6 +70,8 @@ public class CSI2510 {
         System.out.println("Most influential nodes:");
         for (int j = 0; j < 10; j++) {
             System.out.println("#" + (j + 1) + ": " + nodes[j].id + " with a pagerank of " + nodes[j].pageRank);
+            System.out.println("Connections in: " + nodes[j].inDegree());
+            System.out.println("Connections out: " + nodes[j].outDegree());
         }
     }
 

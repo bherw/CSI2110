@@ -44,7 +44,6 @@ public class GraphReader {
         nodes = Arrays.asList(edges.keySet().toArray(x));
 
         csvReader.close();
-        System.out.println("Loaded graph");
         return new Graph(nodes, edges);
     }
 }
