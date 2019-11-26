@@ -34,7 +34,9 @@ public class GraphReader {
             Integer v = Integer.parseInt(data[1]);
 
             List<Integer> edgeList = edges.computeIfAbsent(u, x -> new ArrayList<>());
-            edgeList.add(v);
+            if (!edgeList.contains(v)) {
+                edgeList.add(v);
+            }
             edges.computeIfAbsent(v, x -> new ArrayList<>());
         }
 
