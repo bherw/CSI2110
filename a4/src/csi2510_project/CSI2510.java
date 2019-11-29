@@ -5,80 +5,96 @@
  */
 package csi2510_project;
 
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.IOException;
-import java.util.Arrays;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import javafx.util.Pair;
 
 /**
- * @author Ben Herweyer
+ *
+ * @author Administrator
  */
 public class CSI2510 {
-    public static final double DEFAULT_TOTAL_CHANGE_THRESHOLD = 0.001;
 
     /**
      * @param args the command line arguments
      */
     public static void main(String[] args) throws IOException {
-        double totalChangeThreshold = DEFAULT_TOTAL_CHANGE_THRESHOLD;
-        if (args.length > 0) {
-            try {
-                totalChangeThreshold = Double.parseDouble(args[0]);
-            }
-            catch(NumberFormatException e) {
-                usage();
-            }
-        }
-
         String edgesFilename = "email-dnc.edges";
-        double startTime = System.currentTimeMillis();
-        Graph graph = new GraphReader().read(edgesFilename);
-        Graph.Node[] nodes = graph.getNodes();
-        System.out.println("Loaded graph in " + (System.currentTimeMillis() - startTime) + " ms");
-
-        System.out.println("Number of nodes in the Graph: " + nodes.length);
+        Graph                       graph = readGraph(edgesFilename);
+        List<Integer>               nodes = graph.getGraphNodes();
+        Map<Integer, List<Integer>> edges = graph.getGraphEdges();
         
-        for(Graph.Node node : nodes) {
-            System.out.println("Node number: " + node.id);
+        System.out.println("Number of nodes in the Graph: " + nodes.size());
+        
+        for(Integer node : nodes) {
+            System.out.println("Node number: " + node);
             System.out.print("Adjacent Nodes: ");
-            for (Graph.Edge edge : node.outgoingEdges) {
-                System.out.print(edge.to.id + " ");
+            if (edges.containsKey(node)) {
+                for(Integer edge : edges.get(node)) {
+                    System.out.print(edge + " ");
+                }
             }
             System.out.println();
             System.out.println("------------------------------------");
         }
-
-        // Update page rank one step at a time
-        int i = 1;
-        double totalChange;
-        startTime = System.currentTimeMillis();
-        do {
-            totalChange = graph.updatePageRankOneStep();
-
-            System.out.println("Step " + i++);
-            System.out.println("Change in page rank (avg/total): " + totalChange / nodes.length + " / " + totalChange);
-            System.out.println("Page rank (avg/total): " + graph.getAveragePageRank() + " / " + graph.getTotalPageRank());
-            System.out.println("------------------------------------");
-        } while (totalChange > totalChangeThreshold);
-        System.out.println("PageRank stabilized in " + (System.currentTimeMillis() - startTime) + " ms");
-
-        // Sort by pageRank DESC
-        Arrays.sort(nodes, (a, b) -> {
-            if (a.pageRank == b.pageRank) return 0;
-            if (a.pageRank < b.pageRank) return 1;
-            return -1;
-        });
-
-        System.out.println("Most influential nodes:");
-        for (int j = 0; j < 10; j++) {
-            System.out.println("#" + (j + 1) + ": " + nodes[j].id + " with a pagerank of " + nodes[j].pageRank);
-            System.out.println("Connections in: " + nodes[j].inDegree());
-            System.out.println("Connections out: " + nodes[j].outDegree());
+        
+    }
+    
+    public static Graph readGraph(String edgesFilename) throws FileNotFoundException, IOException {
+        System.getProperty("user.dir");
+        URL edgesPath = CSI2510.class.getResource(edgesFilename);
+        BufferedReader csvReader = new BufferedReader(new FileReader(edgesPath.getFile()));
+        String row;
+        List<Integer>               nodes = new ArrayList<Integer>();
+        Map<Integer, List<Integer>> edges = new HashMap<Integer, List<Integer>>(); 
+        
+        boolean first = false;
+        while ((row = csvReader.readLine()) != null) {
+            if (!first) {
+                first = true;
+                continue;
+            }
+            
+            String[] data = row.split(",");
+            
+            Integer u = Integer.parseInt(data[0]);
+            Integer v = Integer.parseInt(data[1]);
+            
+            if (!nodes.contains(u)) {
+                nodes.add(u);
+            }
+            if (!nodes.contains(v)) {
+                nodes.add(v);
+            }
+            
+            if (!edges.containsKey(u)) {
+                // Create a new list of adjacent nodes for the new node u
+                List<Integer> l = new ArrayList<Integer>();
+                l.add(v);
+                edges.put(u, l);
+            } else {
+				// don't add duplicate edge between u and v
+				if (!edges.get(u).contains(v))
+					edges.get(u).add(v);
+            }
         }
+        
+        for (Integer node : nodes) {
+            if (!edges.containsKey(node)) {
+                edges.put(node, new ArrayList<Integer>());
+            }
+        }
+        
+        csvReader.close();
+        return new Graph(nodes, edges);
     }
-
-    private static void usage() {
-        System.out.println("Usage: java csi2510_project.CSI2510 [<total-change-threshold>]");
-        System.out.println();
-        System.out.println("total-change-threshold: Pagerank calculation will stop after the total change in pagerank across all nodes is less than this value. Default: 0.001");
-        System.exit(255);
-    }
+    
 }
