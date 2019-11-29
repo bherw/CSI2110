@@ -9,11 +9,13 @@
 
 package csi2510_project;
 
-import java.util.Map;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class PageRank {
     public static final double DAMPING_FACTOR = 0.85;    // damping factor
+    public static final double STARTING_PAGE_RANK = 1;
     private double tolerance;                            // tolerance to stop
     private long maxIter;                                // max iterations to stop
 
@@ -36,8 +38,46 @@ public class PageRank {
      */
 
     public Map<Integer, Double> computePageRank(Graph graph) {
+        List<Integer> nodes = graph.getGraphNodes();
+        Map<Integer, List<Integer>> edges = graph.getGraphEdges();
+        Map<Integer, Double> pageRank = new HashMap<>(nodes.size());
 
-        // replace this with your code
-        return new HashMap<Integer, Double>();
+
+        for (Integer node : nodes) {
+            pageRank.put(node, STARTING_PAGE_RANK);
+        }
+
+        double totalChange = Double.MAX_VALUE;
+        int iterations = 0;
+        while (totalChange > tolerance && iterations < maxIter) {
+            totalChange = updatePageRankOneStep(graph, pageRank);
+        }
+
+        return pageRank;
+    }
+
+    private double updatePageRankOneStep(Graph graph, Map<Integer, Double> pageRank) {
+        List<Integer> nodes = graph.getGraphNodes();
+        Map<Integer, List<Integer>> edges = graph.getGraphEdges();
+        Map<Integer, Double> pageRankFromIncoming = new HashMap<>(nodes.size());
+
+        for (Map.Entry<Integer, List<Integer>> entry : edges.entrySet()) {
+            Integer fromNode = entry.getKey();
+            List<Integer> outgoingEdges = entry.getValue();
+            for (Integer toNode : outgoingEdges) {
+                double incomingPrForNode = pageRankFromIncoming.computeIfAbsent(toNode, x -> 0.0);
+                pageRankFromIncoming.put(toNode, incomingPrForNode + pageRank.get(fromNode) / outgoingEdges.size());
+            }
+        }
+
+        double totalChange = 0.0;
+        for (Integer node : nodes) {
+            double oldPageRank = pageRank.get(node);
+            double newPageRank = (1- DAMPING_FACTOR) + DAMPING_FACTOR * pageRankFromIncoming.getOrDefault(node, 0.0);
+            totalChange += Math.abs(oldPageRank-newPageRank);
+            pageRank.put(node, newPageRank);
+        }
+
+        return totalChange;
     }
 }
