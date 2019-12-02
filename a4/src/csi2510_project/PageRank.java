@@ -73,8 +73,8 @@ public class PageRank {
         double totalChange = 0.0;
         for (Integer node : nodes) {
             double oldPageRank = pageRank.get(node);
-            double newPageRank = (1- DAMPING_FACTOR) + DAMPING_FACTOR * pageRankFromIncoming.getOrDefault(node, 0.0);
-            totalChange += Math.abs(oldPageRank-newPageRank);
+            double newPageRank = (1 - DAMPING_FACTOR) + DAMPING_FACTOR * pageRankFromIncoming.getOrDefault(node, 0.0);
+            totalChange += Math.abs(oldPageRank - newPageRank);
             pageRank.put(node, newPageRank);
         }
 
