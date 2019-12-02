@@ -41,7 +41,7 @@ public class PageRank {
         List<Integer> nodes = graph.getGraphNodes();
         Map<Integer, List<Integer>> edges = graph.getGraphEdges();
         Map<Integer, Double> pageRank = new HashMap<>(nodes.size());
-
+        long startTime = System.currentTimeMillis();
 
         for (Integer node : nodes) {
             pageRank.put(node, STARTING_PAGE_RANK);
@@ -52,6 +52,11 @@ public class PageRank {
         while (totalChange > tolerance && ++iterations <= maxIter) {
             totalChange = updatePageRankOneStep(graph, pageRank);
         }
+
+        // XXX: This really isn't the right place to be printing statistics,
+        // but we were told not to modify TestPageRank.java.
+        System.out.println("Computed page rank in " + iterations + " iterations after " + (System.currentTimeMillis() - startTime) + " ms");
+        System.out.println("Total change in page rank in last iteration: " + totalChange);
 
         return pageRank;
     }
