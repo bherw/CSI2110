@@ -49,7 +49,7 @@ public class PageRank {
 
         double totalChange = Double.MAX_VALUE;
         int iterations = 0;
-        while (totalChange > tolerance && iterations < maxIter) {
+        while (totalChange > tolerance && ++iterations <= maxIter) {
             totalChange = updatePageRankOneStep(graph, pageRank);
         }
 
