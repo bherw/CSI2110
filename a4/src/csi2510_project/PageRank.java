@@ -47,16 +47,16 @@ public class PageRank {
             pageRank.put(node, STARTING_PAGE_RANK);
         }
 
-        double totalChange = Double.MAX_VALUE;
+        double meanChange = Double.MAX_VALUE;
         int iterations = 0;
-        while (totalChange > tolerance && ++iterations <= maxIter) {
-            totalChange = updatePageRankOneStep(graph, pageRank);
+        while (meanChange > tolerance && ++iterations <= maxIter) {
+            meanChange = updatePageRankOneStep(graph, pageRank) / nodes.size();
         }
 
         // XXX: This really isn't the right place to be printing statistics,
         // but we were told not to modify TestPageRank.java.
         System.out.println("Computed page rank in " + iterations + " iterations after " + (System.currentTimeMillis() - startTime) + " ms");
-        System.out.println("Total change in page rank in last iteration: " + totalChange);
+        System.out.println("Mean change in page rank in last iteration: " + meanChange);
 
         return pageRank;
     }
